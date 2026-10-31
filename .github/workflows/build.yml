@@ -9,7 +9,7 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.7 }
-      - run: unzip -q bro-android.zip
+      - run: unzip -q "bro-android (1).zip"
       - run: gradle -p bro-android assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
