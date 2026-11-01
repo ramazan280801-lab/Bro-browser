@@ -1,5 +1,10 @@
 name: Build APK
-on: [push, workflow_dispatch]
+on:
+  push:
+    paths:
+      - 'bro-android*.zip'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,7 +16,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: 8.7 }
       - run: |
-          f=$(git log --diff-filter=AM --name-only --format= -- '*.zip' | grep . | head -1)
+          f=$(git log --diff-filter=AM --name-only --format= -- 'bro-android*.zip' | grep . | head -1)
           echo "Using: $f"
           unzip -q "$f"
       - run: gradle -p bro-android assembleDebug --no-daemon
