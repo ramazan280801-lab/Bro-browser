@@ -1,0 +1,38 @@
+name: Build Desktop
+on:
+  push:
+    paths:
+      - 'bro-desktop*.zip'
+      - '.github/workflows/desktop.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Unzip newest desktop zip
+        shell: bash
+        run: |
+          f=$(git log --diff-filter=AM --name-only --format= -- 'bro-desktop*.zip' | grep . | head -1)
+          echo "Using: $f"
+          if [ "$RUNNER_OS" = "Windows" ]; then 7z x -y "$f"; else unzip -q "$f"; fi
+      - name: Build
+        shell: bash
+        working-directory: bro-desktop
+        run: |
+          npm install
+          if [ "$RUNNER_OS" = "Windows" ]; then npx electron-builder --win --publish never; else npx electron-builder --linux --publish never; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bro-browser-${{ matrix.os }}
+          path: |
+            bro-desktop/dist/*.exe
+            bro-desktop/dist/*.deb
+            bro-desktop/dist/*.AppImage
